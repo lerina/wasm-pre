@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Wasm-pre</title>
+  <!-- link rel="preload" href="../fonts/VT323-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous" -->
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="icon" href="../favicon_96x96.png">
+</head>
+<body>
+
+<main class="container">
+
+<div id="screen">
+<div>
+  <img src="../pix/scanlines.png" id="scan">
+  <img src="../pix/bezel.png"  id="bezel">
+  <pre id="pre" tabindex="1"></pre>
+</div>
+</div>
+<div id="debug">
+ <h1>Debug</h1>
+
+<p id="bounds"></p>
+<p><span id="player_pos"></span>
+<br/><span id="boss_pos"></span>
+</p>
+</div>
+<!--
+<canvas id="canvas" tabindex="1">
+    Your browser does not support the Canvas.
+</canvas>
+-->
+
+</main>
+  <script type="module" src="../js/index.js"></script>
+</body>
+</html>
