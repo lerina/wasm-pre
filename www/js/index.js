@@ -9,6 +9,19 @@ const universe = Universe.new();
 const width = universe.width();
 const height = universe.height();
 
+
+
+//---------------------------- debug info
+//console.log(player);
+const player_pos = document.getElementById("player_pos");
+const debug_info = () => {
+     document.getElementById("bounds").innerHTML = "bounds: " + universe.width() 
+                                                 + " X " + universe.height();
+     player_pos.innerHTML = "player pos: x= " + universe.player_x() 
+                            + " y= " + universe.player_y();   
+};
+//-------------------------------------------------------
+
 const pre = document.getElementById("pre");
 
 function keyDown(event) {
@@ -22,7 +35,7 @@ function keyDown(event) {
             case 38:
                 //'Up Key pressed!';
                 universe.move_player_up();
-                console.log("^ y "+ universe.player_y());
+                console.log("↑ y "+ universe.player_y());
 //                event.detail.keyboardEvent.preventDefault();
                 break;
             case 39:
@@ -34,7 +47,7 @@ function keyDown(event) {
                 //'Down Key pressed!';
                 universe.move_player_down();
                 //universe.play();
-                console.log("v y "+ universe.player_y());
+                console.log("↓ y "+ universe.player_y());
                 // https://github.com/PolymerElements/iron-a11y-keys-behavior/issues/13
   //              event.detail.keyboardEvent.preventDefault();
                 break;
@@ -50,7 +63,7 @@ window.addEventListener('keyup', keyUp);
 //---
 const renderLoop = () => {
   pre.textContent = universe.render();
-  //debug_info();
+  debug_info();
 
 universe.tick();
 

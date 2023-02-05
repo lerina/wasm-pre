@@ -5,7 +5,7 @@ use web_sys::console;
 pub const NUM_COLS: usize = 106;
 pub const NUM_ROWS: usize = 60;
 pub const OFFSET: usize = 5;
-pub const PLAYER_OFFSET: usize = 6;
+pub const PLAYER_OFFSET: usize = 7;
 
 pub type Frame = Vec<char>; //NUM_ROWS * NUM_COLS];
 
@@ -31,12 +31,12 @@ pub struct Player {
 #[wasm_bindgen]
 impl Player {
     #[wasm_bindgen(constructor)]
-    pub fn new() -> Self {
+    pub fn new(x: usize, y: usize) -> Self {
         Self {
-            x: NUM_COLS / 2,             //90 - width/2
-            y: NUM_ROWS - PLAYER_OFFSET, //40 - offset - height/2
+            x,
+            y,
             width: 5,
-            height: 2,
+            height: 3,
             shape: r#"  O  
  000 
 OOOOO"#
@@ -44,7 +44,17 @@ OOOOO"#
                 .collect(),
         }
     } //^-- new()
-}
+
+    fn set_pos(&mut self, x: usize, y: usize){
+        self.x = x;
+        self.y = y;        
+    }
+
+    fn get_pos(&self) -> (usize, usize) {
+        
+        (self.x, self.y)
+    }
+}//^--impl Player
 
 impl Drawable for Player {
     fn draw(&self, frame: &mut Frame, idx: usize) {
@@ -56,6 +66,7 @@ impl Drawable for Player {
                 if *s == '\n' {
                     idx += new_line;
                 } else if *s == ' ' {
+                    //see: https://github.com/yewstack/yew/issues/405
                     frame[idx + i] = '\u{00a0}';
                 } else {
                     frame[idx + i] = *s;
@@ -88,14 +99,17 @@ impl Universe {
         //cls
         self.frames = (0..self.width * self.height).map(|_| ' ').collect();
 
+
         let idx = get_index(self.width, self.player.y, self.player.x);
         self.player.draw(&mut self.frames, idx);
+        //degug
+        console::log_1(&format!("{:?}", self.player.get_pos()).into());
     } //^--fn tick
 
     pub fn new() -> Universe {
         let width = NUM_COLS;
         let height = NUM_ROWS;
-        let player = Player::new();
+        let player = Player::new(NUM_COLS / 2, NUM_ROWS - PLAYER_OFFSET);
         let frames = (0..width * height).map(|_| ' ').collect();
 
         Universe {
@@ -121,6 +135,40 @@ impl Universe {
     pub fn height(&self) -> usize {
         self.height
     }
+//--------------
+    // kb handled in js so we expose player here
+    pub fn move_player_left(&mut self) {
+        if self.player.x - 1 >= PLAYER_OFFSET {
+           self.player.set_pos(self.player.x-1,self.player.y);
+        }
+    }
+
+    pub fn move_player_right(&mut self) {
+        if self.player.x + 1 <= NUM_COLS - PLAYER_OFFSET - self.player.width/2{
+         self.player.set_pos(self.player.x+1,self.player.y);
+        }
+    }
+    pub fn move_player_up(&mut self) {
+        if self.player.y - 1 >= PLAYER_OFFSET {
+         self.player.set_pos(self.player.x,self.player.y-1);
+        }
+    }
+
+    pub fn move_player_down(&mut self) {
+        if self.player.y + 1 <= NUM_ROWS - PLAYER_OFFSET {
+            self.player.set_pos(self.player.x,self.player.y+1);
+        }
+    }
+
+    // DEBUG STUFF
+    pub fn player_x(&self) -> usize {
+        self.player.x
+    }
+
+    pub fn player_y(&self) -> usize {
+        self.player.y
+    }
+
 } //^-- impl Universe
 
 /// used by render()
@@ -147,8 +195,27 @@ mod tests {
     use super::*;
 
     #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+    fn create_player_with_pos() {
+        let player = Player::new(20, 20);
+        assert_eq!(player.x, 20);
     }
+
+    #[test]
+    fn set_player_pos() {
+        let mut player = Player::new(0, 0);
+        //player.x = 20;
+        //player.y =  25;
+        player.set_pos(20, 25);
+        assert_eq!(player.x, 20);
+        assert_eq!(player.y, 25);
+    }
+
+    #[test]
+    fn get_player_pos() {
+        let player = Player::new(20, 40);
+        let (x, y) = player.get_pos();
+        assert_eq!(x, 20);
+        assert_eq!(y, 40);
+    }
+
 }
