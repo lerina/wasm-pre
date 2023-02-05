@@ -1,0 +1,79 @@
+html, body {height: 100%;margin: 0; padding: 0}
+* {
+    overflow: hidden!important;
+}
+
+@font-face {
+  font-family: VT323;
+  src: url(../fonts/VT323-Regular.ttf);
+}
+
+.container { 
+    display: grid; 
+   grid-template-columns: 650px 1fr; 
+    /* grid-gap: 4px;
+    border: 1px solid black; */
+    width: 100%;
+    height: 100%;
+} 
+
+main {
+    margin: 0 auto;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+
+canvas {
+    padding: 0;
+    margin: auto;
+    display: block;
+    width: 300px;
+}
+
+#debug {
+    
+    width: 100%;
+    height: 100%;
+    padding: 1em;
+    margin: auto;
+    background-color: #E8D8E6;
+    font-family: "VT323";
+    font-size: 20px;
+}
+/*pre {
+    margin: auto;
+    font-family: "VT323";
+    font-size:20px;
+    line-height: 99%;
+    background-color: green;
+
+}*/
+pre {
+    margin: auto;
+    font-family: monospace;
+    font-size:10px;
+    font-weight: bold;
+    background-color: RGBA(144, 238, 144, 1);
+    color: rgb(20,20,60);
+
+}
+
+#screen {
+    position: relative;
+    width: 100%;
+    /*height: 100%;
+    background-color: red;
+padding: 10px
+*/
+}
+
+#scan, #bezel {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left:0;
+    display:none;/**/
+}

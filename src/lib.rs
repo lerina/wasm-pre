@@ -2,7 +2,6 @@ use std::fmt;
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
-
 pub const NUM_COLS: usize = 106;
 pub const NUM_ROWS: usize = 60;
 pub const OFFSET: usize = 5;
@@ -34,16 +33,16 @@ impl Player {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self {
-            x: NUM_COLS / 2, //90 - width/2
-            y: NUM_ROWS - PLAYER_OFFSET,     //40 - offset - height/2
-            width: 1,
-            height: 1,
-            shape: r#"O"#
+            x: NUM_COLS / 2,             //90 - width/2
+            y: NUM_ROWS - PLAYER_OFFSET, //40 - offset - height/2
+            width: 3,
+            height: 2,
+            shape: r#" O 
+000"#
                 .chars()
                 .collect(),
         }
-    }//^-- new()
-
+    } //^-- new()
 }
 
 impl Drawable for Player {
@@ -55,6 +54,8 @@ impl Drawable for Player {
             for (i, s) in lines.iter().enumerate() {
                 if *s == '\n' {
                     idx += new_line;
+                } else if *s == ' ' {
+                    frame[idx + i] = '.';
                 } else {
                     frame[idx + i] = *s;
                 }
@@ -82,15 +83,13 @@ fn get_index(width: usize, row: usize, column: usize) -> usize {
 
 #[wasm_bindgen] // Public methods are exported to JavaScript.
 impl Universe {
-
     pub fn tick(&mut self) {
         //cls
         self.frames = (0..self.width * self.height).map(|_| ' ').collect();
-        
+
         let idx = get_index(self.width, self.player.y, self.player.x);
         self.player.draw(&mut self.frames, idx);
     } //^--fn tick
-
 
     pub fn new() -> Universe {
         let width = NUM_COLS;
@@ -98,14 +97,13 @@ impl Universe {
         let player = Player::new();
         let frames = (0..width * height).map(|_| ' ').collect();
 
-
         Universe {
             width,
             height,
             player,
             frames,
         }
-    }//^-- new()
+    } //^-- new()
 
     pub fn render(&self) -> String {
         self.to_string()
@@ -122,9 +120,7 @@ impl Universe {
     pub fn height(&self) -> usize {
         self.height
     }
-
-
-}//^-- impl Universe
+} //^-- impl Universe
 
 /// used by render()
 ///
@@ -143,7 +139,6 @@ impl fmt::Display for Universe {
         Ok(())
     }
 }
-
 
 //---------------------------------
 #[cfg(test)]
