@@ -35,10 +35,11 @@ impl Player {
         Self {
             x: NUM_COLS / 2,             //90 - width/2
             y: NUM_ROWS - PLAYER_OFFSET, //40 - offset - height/2
-            width: 3,
+            width: 5,
             height: 2,
-            shape: r#" O 
-000"#
+            shape: r#"  O  
+ 000 
+OOOOO"#
                 .chars()
                 .collect(),
         }
@@ -55,7 +56,7 @@ impl Drawable for Player {
                 if *s == '\n' {
                     idx += new_line;
                 } else if *s == ' ' {
-                    frame[idx + i] = '.';
+                    frame[idx + i] = '\u{00a0}';
                 } else {
                     frame[idx + i] = *s;
                 }
