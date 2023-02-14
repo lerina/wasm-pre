@@ -27,6 +27,10 @@ const pre = document.getElementById("pre");
 function keyDown(event) {
         //console.log("anim On: "+ `key=${event.key},code=${event.code}`);
         switch (event.keyCode) {
+            case 32:
+                //'spacebar Key pressed!';
+                universe.player_shoot();
+                break;
             case 37:
                 //'Left Key pressed!';
                 universe.move_player_left();

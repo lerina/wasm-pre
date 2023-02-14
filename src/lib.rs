@@ -1,6 +1,7 @@
 use std::fmt;
 use wasm_bindgen::prelude::*;
 use web_sys::console;
+// use std::time::{Duration, Instant};
 
 pub const NUM_COLS: usize = 106;
 pub const NUM_ROWS: usize = 60;
@@ -17,6 +18,7 @@ pub trait Drawable {
     fn draw(&self, frame: &mut Frame, idx: usize);
 }
 
+
 //--------------
 #[wasm_bindgen]
 pub struct Player {
@@ -25,7 +27,7 @@ pub struct Player {
     width: usize,
     height: usize,
     shape: Vec<char>,
-    //   shots: Vec<Shot>,
+    shots: Vec<Shot>,
 }
 
 #[wasm_bindgen]
@@ -77,6 +79,50 @@ impl Drawable for Player {
         //        for shot in self.shots.iter() {
         //            shot.draw(frame);
         //        }
+    }
+}
+
+//--------------
+pub struct Shot {
+    pub x: usize,
+    pub y: usize,
+    pub exploding: bool,
+    timer: f64,
+}
+
+impl Shot {
+    pub fn new(x: usize, y: usize) -> Self {
+        Self {
+            x,
+            y,
+            exploding: false,
+            //timer: Timer::from_millis(50),
+            timer: 0.05,
+        }
+    }
+    pub fn update(&mut self, delta: Duration) {
+        self.timer.update(delta);
+        if self.timer.ready && !self.exploding {
+            if self.y > 0 {
+                self.y -= 1;
+            }
+            //self.timer.reset();
+            self.timer = 0.0;
+        }
+    }
+    pub fn explode(&mut self) {
+        self.exploding = true;
+        //self.timer = Timer::from_millis(250);
+        self.timer = 0.25;
+    }
+    pub fn dead(&self) -> bool {
+        (self.exploding && self.timer.ready) || (self.y == 0)
+    }
+}
+
+impl Drawable for Shot {
+    fn draw(&self, frame: &mut Frame) {
+        frame[self.x][self.y] = if self.exploding { '*' } else { '|' };
     }
 }
 
@@ -158,6 +204,10 @@ impl Universe {
         if self.player.y + 1 <= NUM_ROWS - PLAYER_OFFSET {
             self.player.set_pos(self.player.x,self.player.y+1);
         }
+    }
+    //
+    pub fn player_shoot(){
+        //TODO    
     }
 
     // DEBUG STUFF
