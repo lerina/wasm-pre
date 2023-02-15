@@ -1,130 +1,15 @@
+mod html_pre;
+mod player;
+mod shot;
+mod timer;
+
 use std::fmt;
 use wasm_bindgen::prelude::*;
 use web_sys::console;
-// use std::time::{Duration, Instant};
 
-pub const NUM_COLS: usize = 106;
-pub const NUM_ROWS: usize = 60;
-pub const OFFSET: usize = 5;
-pub const PLAYER_OFFSET: usize = 7;
+use crate::html_pre::{NUM_COLS, NUM_ROWS, OFFSET, Frame, Drawable, new_frame};
+use crate::player::*;
 
-pub type Frame = Vec<char>; //NUM_ROWS * NUM_COLS];
-
-pub fn new_frame() -> Frame {
-    vec![' '; NUM_ROWS * NUM_COLS]
-}
-
-pub trait Drawable {
-    fn draw(&self, frame: &mut Frame, idx: usize);
-}
-
-
-//--------------
-#[wasm_bindgen]
-pub struct Player {
-    x: usize,
-    y: usize,
-    width: usize,
-    height: usize,
-    shape: Vec<char>,
-    shots: Vec<Shot>,
-}
-
-#[wasm_bindgen]
-impl Player {
-    #[wasm_bindgen(constructor)]
-    pub fn new(x: usize, y: usize) -> Self {
-        Self {
-            x,
-            y,
-            width: 5,
-            height: 3,
-            shape: r#"  O  
- 000 
-OOOOO"#
-                .chars()
-                .collect(),
-        }
-    } //^-- new()
-
-    fn set_pos(&mut self, x: usize, y: usize){
-        self.x = x;
-        self.y = y;        
-    }
-
-    fn get_pos(&self) -> (usize, usize) {
-        
-        (self.x, self.y)
-    }
-}//^--impl Player
-
-impl Drawable for Player {
-    fn draw(&self, frame: &mut Frame, idx: usize) {
-        let mut idx = idx;
-        let new_line = NUM_COLS; //- self.width ;
-        for lines in self.shape.as_slice().chunks(self.width + 1) {
-            //console::log_1(&format!("{:?}",lines).into());
-            for (i, s) in lines.iter().enumerate() {
-                if *s == '\n' {
-                    idx += new_line;
-                } else if *s == ' ' {
-                    //see: https://github.com/yewstack/yew/issues/405
-                    frame[idx + i] = '\u{00a0}';
-                } else {
-                    frame[idx + i] = *s;
-                }
-            }
-        }
-
-        //        for shot in self.shots.iter() {
-        //            shot.draw(frame);
-        //        }
-    }
-}
-
-//--------------
-pub struct Shot {
-    pub x: usize,
-    pub y: usize,
-    pub exploding: bool,
-    timer: f64,
-}
-
-impl Shot {
-    pub fn new(x: usize, y: usize) -> Self {
-        Self {
-            x,
-            y,
-            exploding: false,
-            //timer: Timer::from_millis(50),
-            timer: 0.05,
-        }
-    }
-    pub fn update(&mut self, delta: Duration) {
-        self.timer.update(delta);
-        if self.timer.ready && !self.exploding {
-            if self.y > 0 {
-                self.y -= 1;
-            }
-            //self.timer.reset();
-            self.timer = 0.0;
-        }
-    }
-    pub fn explode(&mut self) {
-        self.exploding = true;
-        //self.timer = Timer::from_millis(250);
-        self.timer = 0.25;
-    }
-    pub fn dead(&self) -> bool {
-        (self.exploding && self.timer.ready) || (self.y == 0)
-    }
-}
-
-impl Drawable for Shot {
-    fn draw(&self, frame: &mut Frame) {
-        frame[self.x][self.y] = if self.exploding { '*' } else { '|' };
-    }
-}
 
 //--------------
 #[wasm_bindgen]
@@ -135,7 +20,7 @@ pub struct Universe {
     frames: Vec<char>, // should it be Frame?
 }
 
-fn get_index(width: usize, row: usize, column: usize) -> usize {
+pub fn get_index(width: usize, row: usize, column: usize) -> usize {
     row * width + column
 }
 
@@ -145,8 +30,8 @@ impl Universe {
         //cls
         self.frames = (0..self.width * self.height).map(|_| ' ').collect();
 
-
-        let idx = get_index(self.width, self.player.y, self.player.x);
+        let (x,y) = self.player.get_pos();
+        let idx = get_index(self.width, y, x);
         self.player.draw(&mut self.frames, idx);
         //degug
         console::log_1(&format!("{:?}", self.player.get_pos()).into());
@@ -184,39 +69,45 @@ impl Universe {
 //--------------
     // kb handled in js so we expose player here
     pub fn move_player_left(&mut self) {
-        if self.player.x - 1 >= PLAYER_OFFSET {
-           self.player.set_pos(self.player.x-1,self.player.y);
+        let (x,y) = self.player.get_pos();
+        if x - 1 >= PLAYER_OFFSET {
+           self.player.set_pos(x-1, y);
         }
     }
 
     pub fn move_player_right(&mut self) {
-        if self.player.x + 1 <= NUM_COLS - PLAYER_OFFSET - self.player.width/2{
-         self.player.set_pos(self.player.x+1,self.player.y);
+        let (x,y) = self.player.get_pos();
+        if x + 1 <= NUM_COLS - PLAYER_OFFSET - PLAYER_OFFSET/2{ //self.player.width/2{
+         self.player.set_pos(x+1, y);
         }
     }
     pub fn move_player_up(&mut self) {
-        if self.player.y - 1 >= PLAYER_OFFSET {
-         self.player.set_pos(self.player.x,self.player.y-1);
+        let (x,y) = self.player.get_pos();
+        if y - 1 >= PLAYER_OFFSET {
+         self.player.set_pos(x, y-1);
         }
     }
 
     pub fn move_player_down(&mut self) {
-        if self.player.y + 1 <= NUM_ROWS - PLAYER_OFFSET {
-            self.player.set_pos(self.player.x,self.player.y+1);
+        let (x,y) = self.player.get_pos();
+        if y + 1 <= NUM_ROWS - PLAYER_OFFSET {
+            self.player.set_pos(x, y+1);
         }
     }
     //
-    pub fn player_shoot(){
-        //TODO    
+    pub fn player_shoot(&mut self){
+        self.player.shoot();   
     }
 
     // DEBUG STUFF
     pub fn player_x(&self) -> usize {
-        self.player.x
+        let (x,_) = self.player.get_pos();
+        x
     }
 
     pub fn player_y(&self) -> usize {
-        self.player.y
+        let (_,y) = self.player.get_pos();
+        y
     }
 
 } //^-- impl Universe
