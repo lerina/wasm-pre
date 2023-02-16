@@ -96,7 +96,8 @@ impl Universe {
     }
     //
     pub fn player_shoot(&mut self){
-        self.player.shoot();   
+        let (x,y) = self.player.get_pos();
+        self.player.shoot(x, y);   
     }
 
     // DEBUG STUFF

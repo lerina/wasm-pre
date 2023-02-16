@@ -43,9 +43,9 @@ OOOOO"#
         (self.x, self.y)
     }
     //-------------------
-    pub fn shoot(&mut self) -> bool {
+    pub fn shoot(&mut self, x:usize, y:usize) -> bool {
         if self.shots.len() < 2 {
-            self.shots.push(Shot::new(self.x, self.y - self.height -1));
+            self.shots.push(Shot::new(x, y - 4));
             true
         } else {
             false
