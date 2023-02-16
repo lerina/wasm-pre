@@ -43,9 +43,9 @@ OOOOO"#
         (self.x, self.y)
     }
     //-------------------
-    pub fn shoot(&mut self, x:usize, y:usize) -> bool {
-        if self.shots.len() < 2 {
-            self.shots.push(Shot::new(x, y - 4));
+    pub fn shoot(&mut self) -> bool {
+        if self.shots.len() < 3 {
+            self.shots.push(Shot::new(self.x + self.width/2, self.y - 1));
             true
         } else {
             false
@@ -73,7 +73,7 @@ impl Drawable for Player {
         
         //---------
         for shot in self.shots.iter() {
-            let idx = get_index(NUM_ROWS, shot.y, shot.x);
+            let idx = get_index(NUM_COLS, shot.y, shot.x);
             shot.draw(frame, idx);
         }
     }//^--fn draw
