@@ -4,6 +4,7 @@ mod shot;
 mod timer;
 
 use std::fmt;
+use std::time::{Duration, Instant};
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
@@ -17,6 +18,7 @@ pub struct Universe {
     width: usize,
     height: usize,
     player: Player,
+    instant: Instant,
     frames: Vec<char>, // should it be Frame?
 }
 
@@ -29,7 +31,12 @@ impl Universe {
     pub fn tick(&mut self) {
         //cls
         self.frames = (0..self.width * self.height).map(|_| ' ').collect();
-
+        // 
+        
+        let delta = self.instant.elapsed();
+        self.instant = Instant::now();
+        
+        //
         let (x,y) = self.player.get_pos();
         let idx = get_index(self.width, y, x);
         self.player.draw(&mut self.frames, idx);
@@ -41,12 +48,14 @@ impl Universe {
         let width = NUM_COLS;
         let height = NUM_ROWS;
         let player = Player::new(NUM_COLS / 2, NUM_ROWS - PLAYER_OFFSET);
+        let mut instant = Instant::now();
         let frames = (0..width * height).map(|_| ' ').collect();
 
         Universe {
             width,
             height,
             player,
+            instant,
             frames,
         }
     } //^-- new()
