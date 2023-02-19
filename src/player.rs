@@ -1,4 +1,4 @@
-use crate::get_index;
+use crate::{get_index, Duration};
 use crate::shot::Shot;
 use crate::html_pre::{NUM_COLS, NUM_ROWS, OFFSET, Frame, Drawable, new_frame};
 
@@ -50,6 +50,12 @@ OOOOO"#
         } else {
             false
         }
+    }
+    pub fn update(&mut self, delta: Duration) {
+        for shot in self.shots.iter_mut() {
+            shot.update(delta);
+        }
+        self.shots.retain(|shot| !shot.dead());
     }
 }//^--impl Player
 

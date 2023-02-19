@@ -4,7 +4,8 @@ mod shot;
 mod timer;
 
 use std::fmt;
-use std::time::{Duration, Instant};
+use instant::Instant;
+use std::time::Duration;
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
@@ -32,11 +33,11 @@ impl Universe {
         //cls
         self.frames = (0..self.width * self.height).map(|_| ' ').collect();
         // 
-        
+        // Updates
         let delta = self.instant.elapsed();
         self.instant = Instant::now();
-        
-        //
+        self.player.update(delta);
+        //render
         let (x,y) = self.player.get_pos();
         let idx = get_index(self.width, y, x);
         self.player.draw(&mut self.frames, idx);
