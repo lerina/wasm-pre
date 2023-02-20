@@ -2,6 +2,7 @@ mod html_pre;
 mod player;
 mod shot;
 mod timer;
+mod aliens;
 
 use std::fmt;
 use instant::Instant;
@@ -11,7 +12,48 @@ use web_sys::console;
 
 use crate::html_pre::{NUM_COLS, NUM_ROWS, OFFSET, Frame, Drawable, new_frame};
 use crate::player::*;
+use crate::aliens::{Alien, AlienType, ALIEN_WIDTH, ALIEN_HEIGHT};
 
+//can't use log::info; replacing with ex:
+/*  use web_sys::console;
+    let js: JsValue = 4.into();
+    console::log_2(&"Logging arbitrary values looks like".into(), &js);
+*/
+
+
+pub fn get_index(width: usize, row: usize, column: usize) -> usize {
+    row * width + column
+}
+
+
+fn mk_aliens() -> Vec<Alien> {
+    vec![  //Alien::new(0, 0, AlienType::Alien00, 1),
+            //
+            Alien::new(6, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1), 
+            Alien::new(14, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(22, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(30, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(38, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            //
+            Alien::new(6, 9, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(14, 9, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(22, 9, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(30, 9, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(38, 9, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            //
+            Alien::new(6, 12, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(14, 12, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(22, 12, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(30, 12, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(38, 12, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            //
+            Alien::new(6, 15, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(16, 15, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(26, 15, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(35, 15, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(45, 15, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1)
+    ]
+}
 
 //--------------
 #[wasm_bindgen]
@@ -19,12 +61,9 @@ pub struct Universe {
     width: usize,
     height: usize,
     player: Player,
+    aliens: Vec<Alien>, // todo vec of rows of aliens
     instant: Instant,
     frames: Vec<char>, // should it be Frame?
-}
-
-pub fn get_index(width: usize, row: usize, column: usize) -> usize {
-    row * width + column
 }
 
 #[wasm_bindgen] // Public methods are exported to JavaScript.
@@ -37,18 +76,21 @@ impl Universe {
         let delta = self.instant.elapsed();
         self.instant = Instant::now();
         self.player.update(delta);
+        //self.mv_aliens();
+        self.draw_aliens();
         //render
         let (x,y) = self.player.get_pos();
         let idx = get_index(self.width, y, x);
         self.player.draw(&mut self.frames, idx);
         //degug
-        console::log_1(&format!("{:?}", self.player.get_pos()).into());
+        console::log_1(&format!("player pos:{:?}", self.player.get_pos()).into());
     } //^--fn tick
 
     pub fn new() -> Universe {
         let width = NUM_COLS;
         let height = NUM_ROWS;
         let player = Player::new(NUM_COLS / 2, NUM_ROWS - PLAYER_OFFSET);
+        let aliens = mk_aliens();
         let mut instant = Instant::now();
         let frames = (0..width * height).map(|_| ' ').collect();
 
@@ -56,6 +98,7 @@ impl Universe {
             width,
             height,
             player,
+            aliens,
             instant,
             frames,
         }
@@ -106,9 +149,22 @@ impl Universe {
     }
     //
     pub fn player_shoot(&mut self){
-        self.player.shoot();   
+        self.player.shoot();  
+        /*        
+        let (x, y) = self.player.get_pos();
+        let js: JsValue = format!("{} - {}", x, y).into();
+        console::log_2(&"shooting from: ".into(), &js); 
+        */
     }
 
+    //
+    pub fn draw_aliens(&mut self) {
+        for alien in &mut self.aliens {
+            let idx = get_index(self.width, alien.y, alien.x);
+            alien.draw(&mut self.frames, idx);
+            alien.shape_update();
+        }
+    }
     // DEBUG STUFF
     pub fn player_x(&self) -> usize {
         let (x,_) = self.player.get_pos();
