@@ -26,32 +26,35 @@ pub fn get_index(width: usize, row: usize, column: usize) -> usize {
 }
 
 
-fn mk_aliens() -> Vec<Alien> {
-    vec![  //Alien::new(0, 0, AlienType::Alien00, 1),
-            //
-            Alien::new(6, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1), 
+fn mk_aliens() -> Vec<Vec<Alien>> {
+    vec![ 
+       vec![Alien::new(6, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1), 
             Alien::new(14, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(22, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(30, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(38, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+           ],
             //
-            Alien::new(6, 9, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+       vec![Alien::new(6, 9, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(14, 9, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(22, 9, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(30, 9, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(38, 9, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+           ],
             //
-            Alien::new(6, 12, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+       vec![Alien::new(6, 12, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(14, 12, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(22, 12, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(30, 12, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(38, 12, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+           ],
             //
-            Alien::new(6, 15, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+       vec![Alien::new(6, 15, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(16, 15, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(26, 15, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(35, 15, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
-            Alien::new(45, 15, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1)
+            Alien::new(45, 15, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+           ],
     ]
 }
 
@@ -61,7 +64,7 @@ pub struct Universe {
     width: usize,
     height: usize,
     player: Player,
-    aliens: Vec<Alien>, // todo vec of rows of aliens
+    aliens: Vec<Vec<Alien>>, // todo vec of rows of aliens
     instant: Instant,
     frames: Vec<char>, // should it be Frame?
 }
@@ -159,10 +162,12 @@ impl Universe {
 
     //
     pub fn draw_aliens(&mut self) {
-        for alien in &mut self.aliens {
-            let idx = get_index(self.width, alien.y, alien.x);
-            alien.draw(&mut self.frames, idx);
-            alien.shape_update();
+        for row in &mut self.aliens {
+            for alien in row {
+                let idx = get_index(self.width, alien.y, alien.x);
+                alien.draw(&mut self.frames, idx);
+                alien.shape_update();
+            }
         }
     }
     // DEBUG STUFF
