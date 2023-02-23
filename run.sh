@@ -1,4 +1,4 @@
-set -ex
+#set -ex
 
 wasm-pack build --target web --out-dir www/pkg $1 $2
 
