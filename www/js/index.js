@@ -71,7 +71,7 @@ const renderLoop = () => {
 
 universe.tick();
 
-  //requestAnimationFrame(renderLoop);
+  requestAnimationFrame(renderLoop);
 };
 
   requestAnimationFrame(renderLoop);

@@ -13,6 +13,10 @@ use crate::aliens::{Alien, AlienType, ALIEN_WIDTH, ALIEN_HEIGHT};
 use crate::html_pre::{NUM_COLS, NUM_ROWS, Drawable};
 
 
+pub fn get_index(width: usize, row: usize, column: usize) -> usize {
+    row * width + column
+}
+
 fn mk_aliens() -> Vec<Vec<Alien>> {
     vec![ 
        vec![Alien::new(6, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1), 
@@ -45,6 +49,7 @@ impl Universe {
         let delta = self.instant.elapsed();
         self.instant = Instant::now();
         //render
+        self.draw_aliens();
     } //^--fn tick
 
     pub fn new() -> Universe {
@@ -80,6 +85,15 @@ impl Universe {
         self.height
     }
 
+    pub fn draw_aliens(&mut self) {
+        for row in &mut self.aliens {
+            for alien in row {
+                let idx = get_index(self.width, alien.y, alien.x);
+                alien.draw(&mut self.frames, idx);
+                alien.shape_update(self.instant.elapsed());
+            }
+        }
+    }
 } //^-- impl Universe
 
 /// used by render()

@@ -130,6 +130,18 @@ impl Alien {
                 timer: Timer::from_millis(50),
         }
     } //^-- new()
+
+    pub fn shape_update(&mut self, delta: Duration) { 
+        self.timer.update(delta);
+        if self.timer.ready {
+            match self.animation {
+                Animation::Down => self.animation = Animation::Up,
+                Animation::Up => self.animation = Animation::Down,
+            }
+            self.timer.reset();
+        }
+    }
+
 }//^--impl Alien
 //-----------------------------------
 
