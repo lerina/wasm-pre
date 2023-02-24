@@ -13,13 +13,13 @@ const height = universe.height();
 
 //---------------------------- debug info
 //console.log(player);
-const player_pos = document.getElementById("player_pos");
+/*const player_pos = document.getElementById("player_pos");
 const debug_info = () => {
      document.getElementById("bounds").innerHTML = "bounds: " + universe.width() 
                                                  + " X " + universe.height();
      player_pos.innerHTML = "player pos: x= " + universe.player_x() 
                             + " y= " + universe.player_y();   
-};
+};*/
 //-------------------------------------------------------
 
 const pre = document.getElementById("pre");
@@ -67,11 +67,11 @@ window.addEventListener('keyup', keyUp);
 //---
 const renderLoop = () => {
   pre.textContent = universe.render();
-  debug_info();
+  //debug_info();
 
 universe.tick();
 
-  requestAnimationFrame(renderLoop);
+  //requestAnimationFrame(renderLoop);
 };
 
   requestAnimationFrame(renderLoop);
