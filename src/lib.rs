@@ -7,8 +7,6 @@ use std::time::Duration;
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
-use instant::Instant;
-
 use crate::aliens::{Alien, AlienType, ALIEN_WIDTH, ALIEN_HEIGHT};
 use crate::html_pre::{NUM_COLS, NUM_ROWS, Drawable};
 
@@ -28,14 +26,20 @@ fn mk_aliens() -> Vec<Vec<Alien>> {
     ]
 }//^-- mk_aliens()
 
+#[wasm_bindgen]
+extern "C" {
+    type Date;
 
+    #[wasm_bindgen(static_method_of = Date)]
+    pub fn now() -> f64;
+}
 
 #[wasm_bindgen]
 pub struct Universe {
     width: usize,
     height: usize,
     aliens: Vec<Vec<Alien>>,
-    instant: Instant,
+    instant: u64,
     frames: Vec<char>, // should it be Frame?
 }
 
@@ -46,21 +50,22 @@ impl Universe {
         self.frames = (0..self.width * self.height).map(|_| ' ').collect();
         // 
         // Updates
-        let delta = self.instant.elapsed();
-        self.instant = Instant::now();
+        let current = Date::now() as u64;
+        let delta = current - self.instant;
+        self.instant = Date::now() as u64;
 
         // alien shape_update
 
         //render
     
-        self.draw_aliens();
+        self.draw_aliens(delta);
     } //^--fn tick
 
     pub fn new() -> Universe {
         let width = NUM_COLS;
         let height = NUM_ROWS;
         
-        let mut instant = Instant::now();
+        let instant = Date::now() as u64;
         let aliens = mk_aliens();  
         let frames = (0..width * height).map(|_| ' ').collect();
 
@@ -89,12 +94,12 @@ impl Universe {
         self.height
     }
 
-    pub fn draw_aliens(&mut self) {
+    pub fn draw_aliens(&mut self, delta: u64)  {
         for row in &mut self.aliens {
             for alien in row {
                 let idx = get_index(self.width, alien.y, alien.x);
                 alien.draw(&mut self.frames, idx);
-                alien.shape_update(self.instant.elapsed());
+                alien.shape_update(delta);
             }
         }
     }
