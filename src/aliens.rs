@@ -7,7 +7,7 @@ use crate::timer::Timer;
 pub const ALIEN_WIDTH: usize = 6;
 pub const ALIEN_HEIGHT: usize = 3;
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Animation {
     Up,
     Down,
@@ -103,6 +103,8 @@ r#"
     }//^--match alien
 }//^--fn get_alien()
 
+
+#[derive(Debug, PartialEq)]
 pub struct Alien {
     pub x: usize,
     pub y: usize,

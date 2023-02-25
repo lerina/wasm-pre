@@ -48,7 +48,11 @@ impl Universe {
         // Updates
         let delta = self.instant.elapsed();
         self.instant = Instant::now();
+
+        // alien shape_update
+
         //render
+    
         self.draw_aliens();
     } //^--fn tick
 
@@ -56,8 +60,8 @@ impl Universe {
         let width = NUM_COLS;
         let height = NUM_ROWS;
         
-        let aliens = mk_aliens();  
         let mut instant = Instant::now();
+        let aliens = mk_aliens();  
         let frames = (0..width * height).map(|_| ' ').collect();
 
         Universe {
@@ -122,8 +126,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn mk_aliens() {
+    fn make_aliens() {
+        let expected =     vec![ 
+       vec![Alien::new(6, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1), 
+            Alien::new(14, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(22, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(30, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(38, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+           ]
+        ];
 
+        assert_eq!(mk_aliens(), expected);
     }
 
 }
