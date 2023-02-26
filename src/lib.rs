@@ -15,15 +15,22 @@ pub fn get_index(width: usize, row: usize, column: usize) -> usize {
     row * width + column
 }
 
-fn mk_aliens() -> Vec<Vec<Alien>> {
-    vec![ 
+fn mk_alien_wave(dir: i8, speed: f32) -> (Vec<Vec<Alien>>, Wave) {
+    (vec![ 
        vec![Alien::new(6, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1), 
             Alien::new(14, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(22, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(30, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
             Alien::new(38, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
            ],
-    ]
+    ],
+     Wave { dir,
+            left_most: 6,
+            right_most: 38+ALIEN_WIDTH,
+            speed
+          }
+    )
+
 }//^-- mk_aliens()
 
 #[wasm_bindgen]
@@ -34,12 +41,21 @@ extern "C" {
     pub fn now() -> f64;
 }
 
+
+struct Wave {
+    dir:i8,
+    left_most: usize,
+    right_most: usize,
+    speed: f32
+}
+
 #[wasm_bindgen]
 pub struct Universe {
     width: usize,
     height: usize,
     aliens: Vec<Vec<Alien>>,
     instant: u64,
+    wave: Wave,
     frames: Vec<char>, // should it be Frame?
 }
 
@@ -54,11 +70,10 @@ impl Universe {
         let delta = current - self.instant;
         self.instant = Date::now() as u64;
 
-        // alien shape_update
+        self.update_aliens(delta);
 
-        //render
-    
-        self.draw_aliens(delta);
+        //render    
+        self.draw_aliens();
     } //^--fn tick
 
     pub fn new() -> Universe {
@@ -66,7 +81,7 @@ impl Universe {
         let height = NUM_ROWS;
         
         let instant = Date::now() as u64;
-        let aliens = mk_aliens();  
+        let (aliens, wave) = mk_alien_wave(1, 1.9);
         let frames = (0..width * height).map(|_| ' ').collect();
 
         Universe {
@@ -74,6 +89,7 @@ impl Universe {
             height,
             aliens,
             instant,
+            wave,
             frames,
         }
     } //^-- new()
@@ -94,12 +110,23 @@ impl Universe {
         self.height
     }
 
-    pub fn draw_aliens(&mut self, delta: u64)  {
+    pub fn update_aliens(&mut self, delta: u64)  {
+        for row in &mut self.aliens {
+            for alien in row {
+                if alien.shape_update(delta){
+                    alien.x += (self.wave.speed * self.wave.dir as f32) as usize; 
+                    //alien.x;
+                 console::log_1(&format!("x: {} y: {}",alien.x, alien.y).into());
+                }
+            }
+        }
+    }
+
+    pub fn draw_aliens(&mut self)  {
         for row in &mut self.aliens {
             for alien in row {
                 let idx = get_index(self.width, alien.y, alien.x);
                 alien.draw(&mut self.frames, idx);
-                alien.shape_update(delta);
             }
         }
     }
