@@ -17,12 +17,46 @@ pub fn get_index(width: usize, row: usize, column: usize) -> usize {
 
 fn mk_alien_wave(dir: i8, speed: f32) -> (Vec<Vec<Alien>>, Wave) {
     (vec![ 
-       vec![Alien::new(6, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1), 
-            Alien::new(14, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
-            Alien::new(22, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
-            Alien::new(30, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
-            Alien::new(38, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
-           ],
+       vec![/*Alien::new(21, 6, AlienType::Alien05, ALIEN_WIDTH, ALIEN_HEIGHT, 1), 
+            Alien::new(29, 6, AlienType::Alien05, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(37, 6, AlienType::Alien05, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(45, 6, AlienType::Alien05, ALIEN_WIDTH, ALIEN_HEIGHT, 1),*/
+            Alien::new(53, 6, AlienType::Alien05, ALIEN_WIDTH, ALIEN_HEIGHT, 3),
+            /*Alien::new(61, 6, AlienType::Alien05, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(69, 6, AlienType::Alien05, ALIEN_WIDTH, ALIEN_HEIGHT, 1),*/
+            ],
+       vec![Alien::new(21, 11, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1), 
+            Alien::new(29, 11, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(37, 11, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(45, 11, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(53, 11, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(61, 11, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(69, 11, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            ],
+       vec![Alien::new(21, 14, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1), 
+            Alien::new(29, 14, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(37, 14, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(45, 14, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(53, 14, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(61, 14, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(69, 14, AlienType::Alien03, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            ],
+       vec![Alien::new(21, 17, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1), 
+            Alien::new(29, 17, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(37, 17, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(45, 17, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(53, 17, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(61, 17, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(69, 17, AlienType::Alien02, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            ],
+       vec![Alien::new(21, 20, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1), 
+            Alien::new(31, 20, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(40, 20, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(49, 20, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(59, 20, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(69, 20, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(78, 20, AlienType::Alien01, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            ],
     ],
      Wave { dir,
             left_most: 6,
@@ -81,7 +115,7 @@ impl Universe {
         let height = NUM_ROWS;
         
         let instant = Date::now() as u64;
-        let (aliens, wave) = mk_alien_wave(1, 1.9);
+        let (aliens, wave) = mk_alien_wave(1, 1.0);
         let frames = (0..width * height).map(|_| ' ').collect();
 
         Universe {
@@ -111,6 +145,14 @@ impl Universe {
     }
 
     pub fn update_aliens(&mut self, delta: u64)  {
+        
+        if self.wave.dir == 1{
+            //  check right bound
+        } else {
+            // check left bound        
+        // check wave bound
+        
+        //bound OK
         for row in &mut self.aliens {
             for alien in row {
                 if alien.shape_update(delta){
@@ -120,6 +162,19 @@ impl Universe {
                 }
             }
         }
+    }
+
+    pub fn alien_within_bound(&self) -> bool {
+        for row in &self.aliens {
+            for alien in row {
+                if alien.x > 0 && alien.x < self.width &&
+                   alien.y > 0 && alien.y < self.height - alien.height {
+                    return true
+                }
+            }
+        }
+
+        false
     }
 
     pub fn draw_aliens(&mut self)  {

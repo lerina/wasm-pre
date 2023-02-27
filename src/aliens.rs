@@ -145,6 +145,23 @@ impl Alien {
             return true;
         }
         false
+    }//^-- fn shape_update
+
+    pub fn move_left(&mut self) {
+        self.x -= self.speed;
+    }
+    pub fn move_right(&mut self) {
+        self.x += self.speed;
+    }
+    pub fn move_up(&mut self) {
+        if self.y >= OFFSET - self.height/2 {
+            self.y -= self.speed;
+        }
+    }
+    pub fn move_down(&mut self) {
+        if self.y <= NUM_ROWS - OFFSET - self.height {
+            self.y += self.height;
+        }
     }
 
 }//^--impl Alien
