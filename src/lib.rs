@@ -15,7 +15,7 @@ pub fn get_index(width: usize, row: usize, column: usize) -> usize {
     row * width + column
 }
 
-fn mk_alien_wave(dir: i8, speed: f32) -> (Vec<Vec<Alien>>, Wave) {
+fn mk_alien_wave(dir: i8, speed: i8) -> (Vec<Vec<Alien>>, Wave) {
     (vec![ 
        vec![/*Alien::new(21, 6, AlienType::Alien05, ALIEN_WIDTH, ALIEN_HEIGHT, 1), 
             Alien::new(29, 6, AlienType::Alien05, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
@@ -59,8 +59,8 @@ fn mk_alien_wave(dir: i8, speed: f32) -> (Vec<Vec<Alien>>, Wave) {
             ],
     ],
      Wave { dir,
-            left_most: 6,
-            right_most: 38+ALIEN_WIDTH,
+            left_most: 21,
+            right_most: 78+ALIEN_WIDTH,
             speed
           }
     )
@@ -80,7 +80,7 @@ struct Wave {
     dir:i8,
     left_most: usize,
     right_most: usize,
-    speed: f32
+    speed: i8
 }
 
 #[wasm_bindgen]
@@ -115,7 +115,7 @@ impl Universe {
         let height = NUM_ROWS;
         
         let instant = Date::now() as u64;
-        let (aliens, wave) = mk_alien_wave(1, 1.0);
+        let (aliens, wave) = mk_alien_wave(-1, 2);
         let frames = (0..width * height).map(|_| ' ').collect();
 
         Universe {
@@ -144,20 +144,47 @@ impl Universe {
         self.height
     }
 
+    pub fn left_most_x(&self) -> usize{
+        let mut left_most = self.width/2; 
+        for row in &self.aliens {
+            for alien in row {
+                if alien.x < left_most {
+                    left_most = alien.x;                                    
+                }
+            }
+        }
+        left_most
+    }
+
+    pub fn right_most_x(&self) -> usize{
+        let mut right_most = self.width/2; 
+        for row in &self.aliens {
+            for alien in row {
+                if alien.x > right_most {
+                    right_most = alien.x;                                    
+                }
+            }
+        }
+        right_most
+    }
+
     pub fn update_aliens(&mut self, delta: u64)  {
+
+        // check left bound            check right bound 
+        if (self.left_most_x() <= 6 && self.wave.dir == -1)
+        || (self.right_most_x() >= self.width - 12 && self.wave.dir == 1){
+            // change direction
+            self.wave.dir *= -1; 
+        }
         
-        if self.wave.dir == 1{
-            //  check right bound
-        } else {
-            // check left bound        
-        // check wave bound
+        // check wave bottom bound
         
         //bound OK
         for row in &mut self.aliens {
             for alien in row {
                 if alien.shape_update(delta){
-                    alien.x += (self.wave.speed * self.wave.dir as f32) as usize; 
-                    //alien.x;
+                    alien.x += (self.wave.speed * self.wave.dir) as usize; 
+
                  console::log_1(&format!("x: {} y: {}",alien.x, alien.y).into());
                 }
             }
