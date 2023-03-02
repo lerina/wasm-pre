@@ -10,6 +10,8 @@ use web_sys::console;
 use crate::aliens::{Alien, AlienType, ALIEN_WIDTH, ALIEN_HEIGHT};
 use crate::html_pre::{NUM_COLS, NUM_ROWS, Drawable};
 
+pub const PLAYING: bool = true;
+
 
 pub fn get_index(width: usize, row: usize, column: usize) -> usize {
     row * width + column
@@ -99,15 +101,19 @@ impl Universe {
         //cls
         self.frames = (0..self.width * self.height).map(|_| ' ').collect();
         // 
+        if PLAYING {
         // Updates
-        let current = Date::now() as u64;
-        let delta = current - self.instant;
-        self.instant = Date::now() as u64;
+            let current = Date::now() as u64;
+            let delta = current - self.instant;
+            self.instant = Date::now() as u64;
 
-        self.update_aliens(delta);
+            self.update_aliens(delta);
 
-        //render    
-        self.draw_aliens();
+            //render    
+            self.draw_aliens();
+        }
+
+        
     } //^--fn tick
 
     pub fn new() -> Universe {
@@ -144,54 +150,67 @@ impl Universe {
         self.height
     }
 
-    pub fn left_most_x(&self) -> usize{
+    fn most_left_right_bottom(&self) -> (usize, usize, usize) {
         let mut left_most = self.width/2; 
+        let mut right_most = self.width/2;
+        let mut bottom_most = 0;
         for row in &self.aliens {
             for alien in row {
                 if alien.x < left_most {
                     left_most = alien.x;                                    
                 }
-            }
-        }
-        left_most
-    }
-
-    pub fn right_most_x(&self) -> usize{
-        let mut right_most = self.width/2; 
-        for row in &self.aliens {
-            for alien in row {
                 if alien.x > right_most {
                     right_most = alien.x;                                    
                 }
-            }
-        }
-        right_most
-    }
-
-    pub fn update_aliens(&mut self, delta: u64)  {
-
-        // check left bound            check right bound 
-        if (self.left_most_x() <= 6 && self.wave.dir == -1)
-        || (self.right_most_x() >= self.width - 12 && self.wave.dir == 1){
-            // change direction
-            self.wave.dir *= -1; 
-        }
-        
-        // check wave bottom bound
-        
-        //bound OK
-        for row in &mut self.aliens {
-            for alien in row {
-                if alien.shape_update(delta){
-                    alien.x += (self.wave.speed * self.wave.dir) as usize; 
-
-                 console::log_1(&format!("x: {} y: {}",alien.x, alien.y).into());
+                if alien.y > bottom_most {
+                    bottom_most = alien.y;                                    
                 }
             }
         }
+        
+        (left_most, right_most, bottom_most)
     }
 
-    pub fn alien_within_bound(&self) -> bool {
+    fn mv_wave_down(&mut self) { 
+        for row in &mut self.aliens {
+            for alien in row {
+                alien.y += 1;
+            }
+         }
+    }
+
+    fn update_aliens(&mut self, delta: u64)  {
+        let (left_most, right_most, bottom_most) = self.most_left_right_bottom();
+        
+        // check left bound            check right bound 
+        if (left_most <= 6 && self.wave.dir == -1)
+        || (right_most >= self.width - 12 && self.wave.dir == 1){
+            // change direction
+            self.wave.dir *= -1;
+        }
+
+        // mv down
+        if bottom_most <= self.height -27 {
+            self.mv_wave_down();
+
+            for row in &mut self.aliens {
+                for alien in row {
+                    if alien.shape_update(delta){
+                        alien.x += (self.wave.speed * self.wave.dir) as usize; 
+
+              console::log_1(&format!("x: {} y: {}",alien.x, alien.y).into());
+                    }
+                }
+            }
+        } else {
+          //GAMEOVER
+          PLAYING = false;                
+        }
+
+
+    }
+
+    fn alien_within_bound(&self) -> bool {
         for row in &self.aliens {
             for alien in row {
                 if alien.x > 0 && alien.x < self.width &&
