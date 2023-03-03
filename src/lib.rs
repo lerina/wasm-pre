@@ -10,8 +10,6 @@ use web_sys::console;
 use crate::aliens::{Alien, AlienType, ALIEN_WIDTH, ALIEN_HEIGHT};
 use crate::html_pre::{NUM_COLS, NUM_ROWS, Drawable};
 
-pub const PLAYING: bool = true;
-
 
 pub fn get_index(width: usize, row: usize, column: usize) -> usize {
     row * width + column
@@ -85,6 +83,11 @@ struct Wave {
     speed: i8
 }
 
+enum Gamestate {
+    playing,
+    gameover,
+}
+
 #[wasm_bindgen]
 pub struct Universe {
     width: usize,
@@ -92,6 +95,7 @@ pub struct Universe {
     aliens: Vec<Vec<Alien>>,
     instant: u64,
     wave: Wave,
+    gamestate: Gamestate,
     frames: Vec<char>, // should it be Frame?
 }
 
@@ -101,18 +105,23 @@ impl Universe {
         //cls
         self.frames = (0..self.width * self.height).map(|_| ' ').collect();
         // 
-        if PLAYING {
-        // Updates
-            let current = Date::now() as u64;
-            let delta = current - self.instant;
-            self.instant = Date::now() as u64;
+        match self.gamestate  {
+            Gamestate::playing => {
+                // Updates
+                let current = Date::now() as u64;
+                let delta = current - self.instant;
+                self.instant = Date::now() as u64;
 
-            self.update_aliens(delta);
+                self.update_aliens(delta);
 
-            //render    
-            self.draw_aliens();
+                //render    
+                self.draw_aliens();
+            },
+            Gamestate::gameover => {
+                //temp render just stay there    
+                //self.draw_aliens();
+            }
         }
-
         
     } //^--fn tick
 
@@ -122,6 +131,7 @@ impl Universe {
         
         let instant = Date::now() as u64;
         let (aliens, wave) = mk_alien_wave(-1, 2);
+        let gamestate = Gamestate::playing;
         let frames = (0..width * height).map(|_| ' ').collect();
 
         Universe {
@@ -130,6 +140,7 @@ impl Universe {
             aliens,
             instant,
             wave,
+            gamestate,
             frames,
         }
     } //^-- new()
@@ -190,7 +201,7 @@ impl Universe {
         }
 
         // mv down
-        if bottom_most <= self.height -27 {
+        if bottom_most <= self.height -17 {
             self.mv_wave_down();
 
             for row in &mut self.aliens {
@@ -204,7 +215,7 @@ impl Universe {
             }
         } else {
           //GAMEOVER
-          PLAYING = false;                
+          self.gamestate = Gamestate::gameover;                
         }
 
 
