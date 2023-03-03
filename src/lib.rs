@@ -198,11 +198,15 @@ impl Universe {
         || (right_most >= self.width - 12 && self.wave.dir == 1){
             // change direction
             self.wave.dir *= -1;
+            // mv down
+            if bottom_most <= self.height -17 {
+                self.mv_wave_down();
+            } else {
+              //GAMEOVER
+              self.gamestate = Gamestate::gameover;                
+            }
         }
 
-        // mv down
-        if bottom_most <= self.height -17 {
-            self.mv_wave_down();
 
             for row in &mut self.aliens {
                 for alien in row {
@@ -213,12 +217,7 @@ impl Universe {
                     }
                 }
             }
-        } else {
-          //GAMEOVER
-          self.gamestate = Gamestate::gameover;                
-        }
-
-
+        
     }
 
     fn alien_within_bound(&self) -> bool {
