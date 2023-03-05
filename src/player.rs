@@ -51,7 +51,7 @@ OOOOO"#
             false
         }
     }
-    pub fn update(&mut self, delta: Duration) {
+    pub fn update(&mut self, delta: u64) {
         for shot in self.shots.iter_mut() {
             shot.update(delta);
         }

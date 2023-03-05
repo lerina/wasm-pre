@@ -69,7 +69,7 @@ const renderLoop = () => {
   pre.textContent = universe.render();
   //debug_info();
 
-universe.tick();
+  universe.tick();
 
   requestAnimationFrame(renderLoop);
 };

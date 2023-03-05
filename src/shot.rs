@@ -21,8 +21,8 @@ impl Shot {
             timer: Timer::from_millis(50),
         }
     }
-    pub fn update(&mut self, delta: Duration) {
-        self.timer.update(delta);
+    pub fn update(&mut self, delta: u64) {
+        self.timer.update(Duration::from_millis(delta));
         if self.timer.ready && !self.exploding {
             //bullet goes up
             if self.y > 0 {

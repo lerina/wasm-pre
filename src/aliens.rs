@@ -28,13 +28,15 @@ fn get_alien(alien: AlienType) -> Vec<Vec<char>> {
 vec![r#"
  xOOx 
 xxxxxx
- /\/\ "#
+ /\/\ 
+"#
                     .chars()
                     .collect(),
 r#"
  xOOx 
 xxxxxx
- \  / "#
+ \  / 
+"#
                     .chars()
                     .collect(),
             ]
@@ -56,14 +58,14 @@ r#"
         },
         AlienType::Alien03 => {
 vec![r#"
-⢀⡵⣤⡴⣅ 
-⠏⢟⡛⣛⠏⠇
+⢀⡵⣤⡴⣅
+⠨⢟⡛⣛⢙⠅
 "#
                     .chars()
                     .collect(),
 r#"
 ⣆⡵⣤⡴⣅⡆
-⢘⠟⠛⠛⢟ 
+⠏⢟⡛⣛⠏⠇
 "#
                     .chars()
                     .collect(),

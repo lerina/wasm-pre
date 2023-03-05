@@ -1,6 +1,8 @@
 mod timer;
 mod html_pre;
 mod aliens;
+mod player;
+mod shot;
 
 use std::fmt;
 use std::time::Duration;
@@ -9,7 +11,7 @@ use web_sys::console;
 
 use crate::aliens::{Alien, AlienType, ALIEN_WIDTH, ALIEN_HEIGHT};
 use crate::html_pre::{NUM_COLS, NUM_ROWS, Drawable};
-
+use crate::player::*;
 
 pub fn get_index(width: usize, row: usize, column: usize) -> usize {
     row * width + column
@@ -84,14 +86,15 @@ struct Wave {
 }
 
 enum Gamestate {
-    playing,
-    gameover,
+    Playing,
+    Gameover,
 }
 
 #[wasm_bindgen]
 pub struct Universe {
     width: usize,
     height: usize,
+    player: Player,
     aliens: Vec<Vec<Alien>>,
     instant: u64,
     wave: Wave,
@@ -106,18 +109,21 @@ impl Universe {
         self.frames = (0..self.width * self.height).map(|_| ' ').collect();
         // 
         match self.gamestate  {
-            Gamestate::playing => {
+            Gamestate::Playing => {
                 // Updates
                 let current = Date::now() as u64;
                 let delta = current - self.instant;
                 self.instant = Date::now() as u64;
-
+                self.player.update(delta);
                 self.update_aliens(delta);
 
-                //render    
+                //render 
                 self.draw_aliens();
+                let (x,y) = self.player.get_pos();
+                let idx = get_index(self.width, y, x);
+                self.player.draw(&mut self.frames, idx);
             },
-            Gamestate::gameover => {
+            Gamestate::Gameover => {
                 //temp render just stay there    
                 //self.draw_aliens();
             }
@@ -130,13 +136,15 @@ impl Universe {
         let height = NUM_ROWS;
         
         let instant = Date::now() as u64;
+        let player = Player::new(NUM_COLS / 2, NUM_ROWS - PLAYER_OFFSET);
         let (aliens, wave) = mk_alien_wave(-1, 2);
-        let gamestate = Gamestate::playing;
+        let gamestate = Gamestate::Playing;
         let frames = (0..width * height).map(|_| ' ').collect();
 
         Universe {
             width,
             height,
+            player,
             aliens,
             instant,
             wave,
@@ -203,7 +211,7 @@ impl Universe {
                 self.mv_wave_down();
             } else {
               //GAMEOVER
-              self.gamestate = Gamestate::gameover;                
+              self.gamestate = Gamestate::Gameover;                
             }
         }
 
@@ -240,6 +248,55 @@ impl Universe {
                 alien.draw(&mut self.frames, idx);
             }
         }
+    }
+//--------------
+    // kb handled in js so we expose player here
+    pub fn move_player_left(&mut self) {
+        let (x,y) = self.player.get_pos();
+        if x - 1 >= PLAYER_OFFSET {
+           self.player.set_pos(x-1, y);
+        }
+    }
+
+    pub fn move_player_right(&mut self) {
+        let (x,y) = self.player.get_pos();
+        if x + 1 <= NUM_COLS - PLAYER_OFFSET - PLAYER_OFFSET/2{ //self.player.width/2{
+         self.player.set_pos(x+1, y);
+        }
+    }
+    pub fn move_player_up(&mut self) {
+        let (x,y) = self.player.get_pos();
+        if y - 1 >= PLAYER_OFFSET {
+         self.player.set_pos(x, y-1);
+        }
+    }
+
+    pub fn move_player_down(&mut self) {
+        let (x,y) = self.player.get_pos();
+        if y + 1 <= NUM_ROWS - PLAYER_OFFSET {
+            self.player.set_pos(x, y+1);
+        }
+    }
+    
+    pub fn player_shoot(&mut self){
+        self.player.shoot();  
+        /* DEBUG:        
+        let (x, y) = self.player.get_pos();
+        let js: JsValue = format!("{} - {}", x, y).into();
+        console::log_2(&"shooting from: ".into(), &js); 
+        */
+    }
+
+    //======================================================================
+    // DEBUG STUFF
+    pub fn player_x(&self) -> usize {
+        let (x,_) = self.player.get_pos();
+        x
+    }
+
+    pub fn player_y(&self) -> usize {
+        let (_,y) = self.player.get_pos();
+        y
     }
 } //^-- impl Universe
 
