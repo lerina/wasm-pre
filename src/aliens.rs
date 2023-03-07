@@ -149,6 +149,20 @@ impl Alien {
         false
     }//^-- fn shape_update
 
+    pub fn kill_alien_at(&mut self, x: usize, y: usize) -> u16 {
+        if let Some(idx) = self
+            .army
+            .iter()
+            .position(|alien| (alien.x == x) && (alien.y == y))
+        {
+            let points = self.army[idx].points;
+            self.army.remove(idx);
+            points
+        } else {
+            0
+        }
+    }
+
     pub fn move_left(&mut self) {
         self.x -= self.speed;
     }

@@ -57,6 +57,20 @@ OOOOO"#
         }
         self.shots.retain(|shot| !shot.dead());
     }
+
+    pub fn detect_hits(&mut self, aliens: &mut Alien) -> u16 {
+        let mut hit_something = 0u16;
+        for shot in self.shots.iter_mut() {
+            if !shot.exploding {
+                let hit_count = aliens.kill_alien_at(shot.x, shot.y);
+                if hit_count > 0 {
+                    hit_something += hit_count;
+                    shot.explode();
+                }
+            }
+        }
+        hit_something
+    }
 }//^--impl Player
 
 impl Drawable for Player {
