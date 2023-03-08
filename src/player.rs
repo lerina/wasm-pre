@@ -58,7 +58,7 @@ OOOOO"#
         self.shots.retain(|shot| !shot.dead());
     }
 
-    pub fn detect_hits(&mut self, aliens: &mut Alien) -> u16 {
+/*    pub fn detect_hits(&mut self, aliens: &mut Alien) -> u16 {
         let mut hit_something = 0u16;
         for shot in self.shots.iter_mut() {
             if !shot.exploding {
@@ -70,7 +70,8 @@ OOOOO"#
             }
         }
         hit_something
-    }
+    }*/
+
 }//^--impl Player
 
 impl Drawable for Player {

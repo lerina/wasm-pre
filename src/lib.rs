@@ -77,7 +77,7 @@ extern "C" {
     pub fn now() -> f64;
 }
 
-
+#[derive(PartialEq, Debug)]
 struct Wave {
     dir:i8,
     left_most: usize,
@@ -116,7 +116,7 @@ impl Universe {
                 self.instant = Date::now() as u64;
                 self.player.update(delta);
                 self.update_aliens(delta);
-
+                self.detect_collition();
                 //render 
                 self.draw_aliens();
                 let (x,y) = self.player.get_pos();
@@ -167,6 +167,41 @@ impl Universe {
 
     pub fn height(&self) -> usize {
         self.height
+    }
+    
+    fn detect_collition(&self){
+        // shot hit alien
+        let hit_cnt = self.detect_hits(); 
+        // alien row reach bottom limit
+
+    }
+
+    fn detect_hits(&mut self) -> u16 {
+        let mut hit_something = 0u16;
+        for shot in self.player.shots.iter_mut() {
+            if !shot.exploding {
+                let hit_count = aliens.kill_alien_at(shot.x, shot.y);
+                if hit_count > 0 {
+                    hit_something += hit_count;
+                    shot.explode();
+                }
+            }
+        }
+        hit_something
+    }
+
+    pub fn kill_alien_at(&mut self, x: usize, y: usize) -> u16 {
+        if let Some(idx) = self
+            .army
+            .iter()
+            .position(|alien| (alien.x == x) && (alien.y == y))
+        {
+            let points = self.army[idx].points;
+            self.army.remove(idx);
+            points
+        } else {
+            0
+        }
     }
 
     fn most_left_right_bottom(&self) -> (usize, usize, usize) {
@@ -326,19 +361,39 @@ mod tests {
     use super::*;
 
     #[test]
-    fn make_aliens() {
-        let expected =     vec![ 
-       vec![Alien::new(6, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1), 
-            Alien::new(14, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
-            Alien::new(22, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
-            Alien::new(30, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
-            Alien::new(38, 6, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
-           ]
-        ];
+    fn mk_alien() {
+        let expected =     (vec![ 
+        vec![Alien::new(21, 11, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1), 
+            Alien::new(29, 11, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(37, 11, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(45, 11, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(53, 11, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(61, 11, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            Alien::new(69, 11, AlienType::Alien04, ALIEN_WIDTH, ALIEN_HEIGHT, 1),
+            ]
+        ],
+        Wave { dir: 1,
+            left_most: 6,
+            right_most: 38+ALIEN_WIDTH,
+            speed: 1
+          }
+                
+        );
 
-        assert_eq!(mk_aliens(), expected);
+        assert_eq!(mk_alien_wave(1, 1).0[1], expected.0[0]);
     }
 
+    #[test]
+    fn collision_alien_shot() {
+        use crate::shot::Shot;
+ 
+        let alien = Alien::new( 6, 6, 
+                                AlienType::Alien04, 
+                                ALIEN_WIDTH, ALIEN_HEIGHT, 
+                                1);
+        let shot = Shot::new(6, 6);
+        
+    }
 }
 
 
