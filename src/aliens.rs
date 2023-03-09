@@ -117,6 +117,7 @@ pub struct Alien {
     shape: Vec<Vec<char>>,
     //   shots: Vec<Shot>,
     timer: Timer,
+    points: u16,
 }
 
 impl Alien {
@@ -124,7 +125,9 @@ impl Alien {
     pub fn new(x: usize, y: usize, 
                alien: AlienType, 
                width: usize, height: usize, 
-               speed: usize) -> Self {
+               speed: usize,
+               // points: u16,
+               ) -> Self {
 
         Self {  x, y,                //50
                 width, height,
@@ -132,6 +135,7 @@ impl Alien {
                 animation: Animation::Up,
                 shape: get_alien(alien),
                 timer: Timer::from_millis(660),
+                points: 2, //tmp hardcoded
         }
     } //^-- new()
 
