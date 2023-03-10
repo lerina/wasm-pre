@@ -180,7 +180,7 @@ impl Universe {
         let mut hit_something = 0u16;
         for shot in self.player.shots.iter_mut() {
             if !shot.exploding {
-                let hit_count = aliens.kill_alien_at(shot.x, shot.y);
+                let hit_count = self.aliens.kill_alien_at(shot.x, shot.y);
                 if hit_count > 0 {
                     hit_something += hit_count;
                     shot.explode();
@@ -192,12 +192,12 @@ impl Universe {
 
     pub fn kill_alien_at(&mut self, x: usize, y: usize) -> u16 {
         if let Some(idx) = self
-            .wave
+            .aliens
             .iter()
             .position(|alien| (alien.x == x) && (alien.y == y))
         {
-            let points = self.wave[idx].points;
-            self.wave.remove(idx);
+            let points = self.aliens[idx].points;
+            self.aliens.remove(idx);
             points
         } else {
             0
