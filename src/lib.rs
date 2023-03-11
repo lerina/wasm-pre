@@ -180,7 +180,7 @@ impl Universe {
         let mut hit_something = 0u16;
         for shot in self.player.shots.iter_mut() {
             if !shot.exploding {
-                let hit_count = self.aliens.kill_alien_at(shot.x, shot.y);
+                let hit_count = self.kill_alien_at(shot.x, shot.y);
                 if hit_count > 0 {
                     hit_something += hit_count;
                     shot.explode();
@@ -202,7 +202,7 @@ impl Universe {
         } else {
             0
         }
-    }
+    }//^--kill_alien_at
 
     fn most_left_right_bottom(&self) -> (usize, usize, usize) {
         let mut left_most = self.width/2; 
