@@ -10,7 +10,7 @@ use wasm_bindgen::prelude::*;
 use web_sys::console;
 
 use crate::aliens::{Alien, AlienType, ALIEN_WIDTH, ALIEN_HEIGHT};
-use crate::html_pre::{NUM_COLS, NUM_ROWS, Drawable};
+use crate::html_pre::{NUM_COLS, NUM_ROWS, Drawable, Date};
 use crate::player::*;
 
 pub fn get_index(width: usize, row: usize, column: usize) -> usize {
@@ -18,14 +18,6 @@ pub fn get_index(width: usize, row: usize, column: usize) -> usize {
 }
 
 
-
-#[wasm_bindgen]
-extern "C" {
-    type Date;
-
-    #[wasm_bindgen(static_method_of = Date)]
-    pub fn now() -> f64;
-}
 
 //---------------
 
