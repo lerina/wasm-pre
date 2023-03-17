@@ -36,7 +36,7 @@ enum Gamestate {
 pub struct Universe {
     width: usize,
     height: usize,
-    //player: Player,
+    player: Player,
     //aliens: Vec<Vec<Alien>>,
     instant: u64,
     wave: Wave,
@@ -57,8 +57,12 @@ impl Universe {
                 let current = Date::now() as u64;
                 let delta = current - self.instant;
                 self.instant = Date::now() as u64;
-                // render
+                self.player.update(delta);
 
+                // render
+                let (x,y) = self.player.get_pos();
+                let idx = get_index(self.width, y, x);
+                self.player.draw(&mut self.frames, idx);
             },
             Gamestate::Gameover => {
                 //temp render just stay there    
@@ -74,7 +78,7 @@ impl Universe {
         let height = NUM_ROWS;
         
         let instant = Date::now() as u64;
-        //let player = Player::new(NUM_COLS / 2, NUM_ROWS - PLAYER_OFFSET);
+        let player = Player::new(NUM_COLS / 2, NUM_ROWS - PLAYER_OFFSET);
         //let (aliens, wave) = mk_alien_wave(-1, 2);
         let wave = Wave{dir: -1, speed: 2};
         let gamestate = Gamestate::Playing;
@@ -83,7 +87,7 @@ impl Universe {
         Universe {
             width,
             height,
-            //player,
+            player,
             //aliens,
             instant,
             wave,
