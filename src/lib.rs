@@ -37,7 +37,7 @@ pub struct Universe {
     width: usize,
     height: usize,
     player: Player,
-    //aliens: Vec<Vec<Alien>>,
+    aliens: Vec<Vec<Alien>>,
     instant: u64,
     wave: Wave,
     gamestate: Gamestate,
